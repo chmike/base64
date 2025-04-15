@@ -1,6 +1,6 @@
 # Fast base64 encoder/decoder
 
-This base64 encoder/decoder is faster than stdlib base64 package.
+This base64 encoder/decoder is faster than the stdlib base64 package.
 
 Encoding is 70% faster on ARM64 (Mac book M2) and 36% on AMD64 (i5 11th Gen).
 
