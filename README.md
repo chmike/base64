@@ -10,6 +10,12 @@ is 32% faster on ARM64 and 5% faster on AMD64.
 Decoding pure base64 without padding and characters to ignore is 7% faster on
 ARM64 and 32% faster on AMD64.
 
+## Testing and benchmarking
+
+Testing covers 100% of the code.
+
+A CLI program is provided to generate benchmarks of the three typical usages.
+
 ## API
 
 Usage is similar to the standard library. The predefined `StdEncoding` and
