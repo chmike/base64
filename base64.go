@@ -163,18 +163,20 @@ func (enc *Encoding) Encode(dst []byte, src []byte) []byte {
 	}
 	var i, j int
 	c := enc.encodeMap[:64]
-	for l := len(src) - 8; i <= l; i += 6 {
-		v := binary.BigEndian.Uint64(src[i:])
-		t := dst[j : j+8]
-		t[0] = c[v>>58&63]
-		t[1] = c[v>>52&63]
-		t[2] = c[v>>46&63]
-		t[3] = c[v>>40&63]
-		t[4] = c[v>>34&63]
-		t[5] = c[v>>28&63]
-		t[6] = c[v>>22&63]
-		t[7] = c[v>>16&63]
-		j += 8
+	if strconv.IntSize == 64 {
+		for l := len(src) - 8; i <= l; i += 6 {
+			v := binary.BigEndian.Uint64(src[i:])
+			t := dst[j : j+8]
+			t[0] = c[v>>58&63]
+			t[1] = c[v>>52&63]
+			t[2] = c[v>>46&63]
+			t[3] = c[v>>40&63]
+			t[4] = c[v>>34&63]
+			t[5] = c[v>>28&63]
+			t[6] = c[v>>22&63]
+			t[7] = c[v>>16&63]
+			j += 8
+		}
 	}
 	if len(src)-i >= 4 {
 		v := binary.BigEndian.Uint32(src[i:])
