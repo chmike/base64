@@ -399,6 +399,16 @@ func (enc *Encoding) Decode(dst, src []byte) (int, error) {
 	return j, newDecodeError(ErrBadLength, len(src))
 }
 
+func (enc *Encoding) offsetInvalid(src []byte) int {
+	c := enc.decodeMap[:256]
+	for i := range src {
+		if c[src[i]]&badCode != 0 {
+			return i
+		}
+	}
+	return 0
+}
+
 // decodeIgnore is like Decode but it has characters to ignore. It returns an ErrOffset. decodes src into dst and returns the number of bytes written and read.
 // When error is not nil, the number of bytes read is the offset in src of the
 // character that caused the error.
