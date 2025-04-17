@@ -1,0 +1,64 @@
+OS: linux, Arch: amd64, go1.24.2, 5000 bytes
+encode:   5%   250   181.1ns   144.2ns 25.55%
+encode:  10%   500   352.5ns   268.2ns 31.42%
+encode:  15%   750   528.1ns   395.8ns 33.42%
+encode:  20%  1000   698.5ns   520.3ns 34.25%
+encode:  25%  1250   869.5ns   642.4ns 35.35%
+encode:  30%  1500  1044.3ns   766.6ns 36.22%
+encode:  35%  1750  1214.4ns   896.3ns 35.49%
+encode:  40%  2000  1386.2ns  1015.8ns 36.46%
+encode:  45%  2250  1561.6ns  1139.9ns 37.00%
+encode:  50%  2500  1744.8ns  1264.4ns 38.00%
+encode:  55%  2750  1907.6ns  1395.4ns 36.71%
+encode:  60%  3000  2117.5ns  1515.9ns 39.68%
+encode:  65%  3250  2257.4ns  1637.1ns 37.89%
+encode:  70%  3500  2433.8ns  1767.7ns 37.69%
+encode:  75%  3750  2596.7ns  1889.4ns 37.43%
+encode:  80%  4000  2774.0ns  2025.6ns 36.95%
+encode:  85%  4250  2947.6ns  2138.0ns 37.87%
+encode:  90%  4500  3112.9ns  2316.1ns 34.40%
+encode:  95%  4750  3280.7ns  2390.6ns 37.23%
+encode: 100%  5000  3458.2ns  2543.7ns 35.95%
+encode enhancement: 35.75%
+decode ignore   5%   250   183.2ns   188.7ns -2.92%
+decode ignore  10%   500   359.6ns   345.9ns  3.97%
+decode ignore  15%   750   519.4ns   480.6ns  8.09%
+decode ignore  20%  1000   691.0ns   679.4ns  1.71%
+decode ignore  25%  1250   867.4ns   829.3ns  4.61%
+decode ignore  30%  1500  1013.9ns   967.4ns  4.81%
+decode ignore  35%  1750  1190.7ns  1138.6ns  4.57%
+decode ignore  40%  2000  1375.6ns  1304.7ns  5.44%
+decode ignore  45%  2250  1521.1ns  1438.9ns  5.71%
+decode ignore  50%  2500  1686.8ns  1616.2ns  4.37%
+decode ignore  55%  2750  1882.5ns  1783.7ns  5.54%
+decode ignore  60%  3000  2013.2ns  1912.0ns  5.30%
+decode ignore  65%  3250  2193.0ns  2093.5ns  4.75%
+decode ignore  70%  3500  2366.6ns  2249.5ns  5.21%
+decode ignore  75%  3750  2510.6ns  2411.3ns  4.12%
+decode ignore  80%  4000  2682.2ns  2567.6ns  4.46%
+decode ignore  85%  4250  2855.5ns  2766.8ns  3.21%
+decode ignore  90%  4500  3014.5ns  2877.3ns  4.77%
+decode ignore  95%  4750  3185.5ns  3055.0ns  4.27%
+decode ignore 100%  5000  3385.1ns  3212.6ns  5.37%
+decode MIME enhancement:  4.37%
+decode   5%   250   146.9ns   131.1ns 12.03%
+decode  10%   500   280.0ns   215.8ns 29.76%
+decode  15%   750   418.5ns   334.4ns 25.16%
+decode  20%  1000   559.4ns   415.1ns 34.78%
+decode  25%  1250   706.8ns   540.5ns 30.75%
+decode  30%  1500   835.3ns   626.8ns 33.27%
+decode  35%  1750   981.7ns   755.5ns 29.93%
+decode  40%  2000  1110.3ns   834.9ns 32.99%
+decode  45%  2250  1252.1ns   956.9ns 30.85%
+decode  50%  2500  1374.2ns  1053.0ns 30.50%
+decode  55%  2750  1520.6ns  1164.8ns 30.54%
+decode  60%  3000  1641.0ns  1248.5ns 31.44%
+decode  65%  3250  1813.4ns  1367.8ns 32.58%
+decode  70%  3500  1918.8ns  1450.9ns 32.25%
+decode  75%  3750  2085.5ns  1552.0ns 34.37%
+decode  80%  4000  2202.0ns  1660.2ns 32.63%
+decode  85%  4250  2351.9ns  1785.6ns 31.71%
+decode  90%  4500  2458.4ns  1866.0ns 31.75%
+decode  95%  4750  2624.8ns  1990.4ns 31.88%
+decode 100%  5000  2740.2ns  2082.6ns 31.58%
+decode enhancement: 30.54%

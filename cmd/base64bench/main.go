@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -143,6 +144,17 @@ func average(pcts []float64) float64 {
 }
 
 func main() {
+	size := 5000
+	if len(os.Args) != 2 {
+		fmt.Printf("expect byte length as argument (default: %d)\n", size)
+	} else {
+		v, err := strconv.Atoi(os.Args[1])
+		if err != nil {
+			fmt.Printf("invalid argument, use default byte length %d\n", size)
+		} else {
+			size = v
+		}
+	}
 
 	sys := runtime.GOOS
 	arch := runtime.GOARCH
@@ -153,7 +165,7 @@ func main() {
 		goVersion = buildInfo.GoVersion
 	}
 
-	fileName := fmt.Sprintf("bench_%s_%s_%s.txt", sys, arch, goVersion)
+	fileName := fmt.Sprintf("bench_%s_%s_%s_%d.txt", sys, arch, goVersion, size)
 	fileName = strings.ReplaceAll(fileName, " ", "_")
 	fmt.Println("saving stats in", fileName)
 
@@ -163,11 +175,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	infoString := fmt.Sprintf("OS: %s, Arch: %s, %s", sys, arch, goVersion)
+	infoString := fmt.Sprintf("OS: %s, Arch: %s, %s, %d bytes", sys, arch, goVersion, size)
 	fmt.Println(infoString)
 	fmt.Fprintln(f, infoString)
 
-	data := make([]byte, 5000)
+	data := make([]byte, size)
 	_, _, pct := benchRawEncode(f, data)
 	fmt.Printf("encode enhancement: %5.2f%%\n", average(pct))
 	fmt.Fprintf(f, "encode enhancement: %5.2f%%\n", average(pct))

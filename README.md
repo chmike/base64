@@ -5,16 +5,20 @@ This base64 encoder/decoder is faster than the stdlib base64 package.
 Encoding is 70% faster on ARM64 (Mac book M2) and 36% on AMD64 (i5 11th Gen).
 
 Decoding MIME encoded base64, which is base64 with a newline every 76 character,
-is 32% faster on ARM64 and 5% faster on AMD64.
+is 31% faster on ARM64 and 5% faster on AMD64.
 
-Decoding pure base64 without padding and characters to ignore is 7% faster on
-ARM64 and 32% faster on AMD64.
+Decoding pure base64, without padding and characters to ignore, is 7% faster on
+ARM64 and 31% faster on AMD64.
 
 ## Testing and benchmarking
 
 Testing covers 100% of the code.
 
 A CLI program is provided to generate benchmarks of the three typical usages.
+
+This package provide the same predefined encodings as in the standard library.
+For pure base64 encoding, instantiate a new encoding with nil as characters to
+ignore. 
 
 ## API
 
@@ -31,7 +35,9 @@ and \r characters.
 The function `NewEncoding(alphabet, ignore, padding, bitPadding)` allows to
 define an encoding with a user defined alphabet, any set of ASCII characters
 to ignore, a user defined padding character or none, and `Strict` or `Lax`
-bit padding checking which doesn't require the padding bits to be 0.
+bit padding checking which doesn't require the padding bits to be 0. A helper
+function `MustNewEncoding`is provided to instantiate the encoding as a global
+variable initialized at program startup.
 
 Two alphabets are predefined, `StdAlphabet` and `URLAlphabet`. The characters
 to ignore may be nil, `IgnoreNone`, `IgnoreNewlineOnly`, `IgnoreAll`.  The
@@ -49,3 +55,6 @@ The bitPadding argument may be `Strict` to enforce 0 bit padding check, or
 
 There is room for enhancement by using SIMD instructions. We didn't explore
 this option.
+
+What is missing is are decoding function with a string input instead of a
+byte slice.

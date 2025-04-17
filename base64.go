@@ -256,164 +256,147 @@ func (enc *Encoding) Decode(dst, src []byte) (int, error) {
 	if enc.ignore {
 		return enc.decodeIgnore(dst, src)
 	}
-	var i, j int
-	if len(src) == 0 {
-		return 0, nil
-	}
-	l := len(src)
+	c := enc.decodeMap[:256]
 	if enc.padding != NoPadding {
-		if l&0x3 != 0 {
-			return j, newDecodeError(ErrBadPadding, i)
+		n := len(src)
+		if n&0x3 != 0 {
+			return 0, newDecodeError(ErrBadPadding, len(src))
 		}
-		if rune(src[len(src)-1]) == enc.padding {
-			l -= 4
+		if n > 0 && rune(src[n-1]) == enc.padding {
+			n--
 		}
+		if n > 0 && rune(src[n-1]) == enc.padding {
+			n--
+		}
+		src = src[:n]
 	}
-	c := enc.decodeMap[0:256]
+
+	var i, j int
 	if strconv.IntSize == 64 {
-		n := min(l/8, (len(dst)-2)/6)
-		for range n {
-			b := src[i : i+8]
-			m := c[b[0]]
-			f := m
-			v := uint64(m)
-			m = c[b[1]]
-			f |= m
-			v = v<<6 | uint64(m)
-			m = c[b[2]]
-			f |= m
-			v = v<<6 | uint64(m)
-			m = c[b[3]]
-			f |= m
-			v = v<<6 | uint64(m)
-			m = c[b[4]]
-			f |= m
-			v = v<<6 | uint64(m)
-			m = c[b[5]]
-			f |= m
-			v = v<<6 | uint64(m)
-			m = c[b[6]]
-			f |= m
-			v = v<<6 | uint64(m)
-			m = c[b[7]]
-			f |= m
-			v = v<<6 | uint64(m)
-			if f&badCode != 0 {
-				for k := range len(b) {
-					if c[b[k]]&badCode != 0 {
-						return j, newDecodeError(ErrBadCharacter, i+k)
-					}
-				}
-				// never reached
-			}
-			binary.BigEndian.PutUint64(dst[j:], v<<16)
+		for range min(len(src)/8, (len(dst)-2)/6) {
+			var out uint64
+			s := src[i : i+8]
 			i += 8
-			j += 6
+			f := c[s[0]]
+			out = out<<6 | uint64(f)
+			b := c[s[1]]
+			out = out<<6 | uint64(b)
+			f |= b
+			b = c[s[2]]
+			out = out<<6 | uint64(b)
+			f |= b
+			b = c[s[3]]
+			out = out<<6 | uint64(b)
+			f |= b
+			b = c[s[4]]
+			out = out<<6 | uint64(b)
+			f |= b
+			b = c[s[5]]
+			out = out<<6 | uint64(b)
+			f |= b
+			b = c[s[6]]
+			out = out<<6 | uint64(b)
+			f |= b
+			b = c[s[7]]
+			out = out<<6 | uint64(b)
+			f |= b
+			if f&badCode != 0 {
+				return j, newDecodeError(ErrBadCharacter, i+enc.offsetInvalid(s))
+			}
+			binary.BigEndian.PutUint64(dst[j:], out<<16)
+			j += +6
 		}
 		if i == len(src) {
 			return j, nil
 		}
 	}
-	n := (l - i) / 4
+	n := min((len(src)-i)/4, (len(dst)-j-2)/3)
 	for range n {
-		b := src[i : i+4]
-		m := c[b[0]]
-		f := m
-		v := uint64(m)
-		m = c[b[1]]
-		f |= m
-		v = v<<6 | uint64(m)
-		m = c[b[2]]
-		f |= m
-		v = v<<6 | uint64(m)
-		m = c[b[3]]
-		f |= m
-		v = v<<6 | uint64(m)
-		if f&badCode != 0 {
-			for k := range len(b) {
-				if c[b[k]]&badCode != 0 {
-					return j, newDecodeError(ErrBadCharacter, i+k)
-				}
-			}
-			// never reached
-		}
-		b = dst[j : j+3]
-		b[0] = byte(v >> 16)
-		b[1] = byte(v >> 8)
-		b[2] = byte(v)
+		var out uint32
+		s := src[i : i+4]
 		i += 4
+		f := c[s[0]]
+		out = out<<6 | uint32(f)
+		b := c[s[1]]
+		out = out<<6 | uint32(b)
+		f |= b
+		b = c[s[2]]
+		out = out<<6 | uint32(b)
+		f |= b
+		b = c[s[3]]
+		out = out<<6 | uint32(b)
+		f |= b
+		if f&badCode != 0 {
+			return j, newDecodeError(ErrBadCharacter, i+enc.offsetInvalid(s))
+		}
+		binary.BigEndian.PutUint32(dst[j:], out<<8)
 		j += 3
 	}
-	if i == len(src) {
+	rl := len(src) - i
+	if rl == 0 {
 		return j, nil
 	}
-	var r int
-	if enc.padding != NoPadding {
-		b := src[i : i+4]
-		if rune(b[2]) != enc.padding {
-			r = 3
-		} else if rune(b[1]) != enc.padding {
-			r = 2
-		} else if rune(b[0]) != enc.padding {
-			r = 1
-		}
-	} else {
-		r = len(src) - i
-	}
-	if r == 2 {
-		b := src[i : i+2]
-		m := c[b[0]]
-		f := m
-		v := uint64(m)
-		m = c[b[1]]
-		f |= m
-		v = v<<6 | uint64(m)
+	if rl == 4 {
+		var out uint32
+		s := src[i : i+4]
+		f := c[s[0]]
+		out = out<<6 | uint32(f)
+		b := c[s[1]]
+		out = out<<6 | uint32(b)
+		f |= b
+		b = c[s[2]]
+		out = out<<6 | uint32(b)
+		f |= b
+		b = c[s[3]]
+		out = out<<6 | uint32(b)
+		f |= b
 		if f&badCode != 0 {
-			for k := range len(b) {
-				if c[b[k]]&badCode != 0 {
-					return j, newDecodeError(ErrBadCharacter, i+k)
-				}
-			}
-			// never reached
+			return j, newDecodeError(ErrBadCharacter, i+enc.offsetInvalid(s))
 		}
-		if !enc.lax && v&0xF != 0 {
-			return j, newDecodeError(ErrBadBitPadding, i+1)
-		}
-		dst[j] = byte(v >> 4)
-		return j + 1, nil
+		d := dst[j : j+3]
+		d[0] = byte(out >> 16)
+		d[1] = byte(out >> 8)
+		d[2] = byte(out)
+		return j + 3, nil
 	}
-	if r == 3 {
-		b := src[i : i+3]
-		m := c[b[0]]
-		f := m
-		v := uint64(m)
-		m = c[b[1]]
-		f |= m
-		v = v<<6 | uint64(m)
-		m = c[b[2]]
-		f |= m
-		v = v<<6 | uint64(m)
+	if rl == 3 {
+		var out uint32
+		s := src[i : i+3]
+		f := c[s[0]]
+		out = out<<6 | uint32(f)
+		b := c[s[1]]
+		out = out<<6 | uint32(b)
+		f |= b
+		b = c[s[2]]
+		out = out<<6 | uint32(b)
+		f |= b
 		if f&badCode != 0 {
-			for k := range len(b) {
-				if c[b[k]]&badCode != 0 {
-					return j, newDecodeError(ErrBadCharacter, i+k)
-				}
-			}
-			// never reached
+			return j, newDecodeError(ErrBadCharacter, i+enc.offsetInvalid(s))
 		}
-		if !enc.lax && v&0x3 != 0 {
+		if !enc.lax && out&3 != 0 {
 			return j, newDecodeError(ErrBadBitPadding, i+2)
 		}
-		v >>= 2
-		b = dst[j : j+2]
-		b[0] = byte(v >> 8)
-		b[1] = byte(v)
+		binary.BigEndian.PutUint16(dst[j:], uint16(out>>2))
 		return j + 2, nil
 	}
-	if enc.padding == NoPadding {
-		return j, newDecodeError(ErrBadLength, i)
+	if rl == 2 {
+		var out uint16
+		s := src[i : i+2]
+		f := c[s[0]]
+		out = out<<6 | uint16(f)
+		b := c[s[1]]
+		out = out<<6 | uint16(b)
+		f |= b
+		if f&badCode != 0 {
+			return j, newDecodeError(ErrBadCharacter, i+enc.offsetInvalid(s))
+		}
+		if !enc.lax && out&15 != 0 {
+			return j, newDecodeError(ErrBadBitPadding, i+1)
+		}
+		dst[j] = byte(out >> 4)
+		return j + 1, nil
 	}
-	return j, newDecodeError(ErrBadBitPadding, i+r)
+	return j, newDecodeError(ErrBadLength, len(src))
 }
 
 // decodeIgnore is like Decode but it has characters to ignore. It returns an ErrOffset. decodes src into dst and returns the number of bytes written and read.
@@ -595,13 +578,16 @@ func (enc *Encoding) readSkip(src []byte, i int) (byte, int) {
 	for i < len(src) {
 		m := c[src[i]]
 		if m == Invalid {
+			// blocks on invalid character
 			return m, i
 		}
 		i++
 		if m != Ignore {
+			// consumes valid and padding characters
 			return m, i
 		}
 	}
+	// blocks on end of src and return Ignore code
 	return Ignore, i
 }
 
